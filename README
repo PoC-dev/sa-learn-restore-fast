@@ -1,0 +1,49 @@
+Spamassassin Databases can be saved and restored with the aid of the sa-learn
+program, supplied with Spamassassin. Advantages of it are:
+- Backend-agnostic,
+- Atomic updates (so restore can run while SA is actually working in
+  parallel).
+
+The biggest disadvantage is that these atomic updates take a lot of time.
+Runtimes of multiple hours are not uncommon for databases with multi-milion
+tokens. Depending on details of the used hard- and software, the database
+itself might even be faster than sa-learn can deliver SQL commands.
+
+This script is meant to fill in the gap. Sometimes, atomic updates aren't
+necessary: Why would one need to run a newly setup spamassassin instance
+without a complete bayes database?
+
+This script takes a backup file of sa-learn on standard input and feeds the
+contents to the backend as fast as possible, so time can be saved to get back
+to production work.
+
+This script is based on the assumption that the Bayes-Database is located in
+a SQL database, and ODBC is used for access. Also, the tables must already
+have been created.
+
+It has been tested with restoring to a DB/2 UDB database on an AS/400 running
+OS/400 V4R5. It is licensed under the terms of the GPLv2 or later, at your
+option.
+
+Usage
+=====
+Edit the script to reflect your ODBC configuration name, username and password
+for accessing the database.
+
+The same restriction applies like with sa-learn --restore: Run the script as
+the user who wants access the data. Spamassassin is meant to provide
+individual services for different users, with the same database. (The backup
+file has no information about users.)
+
+Feed the backup file to stdin of this script.
+
+Bugs
+====
+The VERSION entry in bayes_global_vars isn't created if missing. Do by hand
+meanwhile, as recommended in the SQL docs for Spamassassin anyway.
+
+Please provide feedback to my mail address, poc@pocnet.net.
+
+
+Patrik Schindler <poc@pocnet.net>
+December 2020
